@@ -99,7 +99,7 @@ defmodule Cldr.Config do
   @cldr_modules [
     "number_formats", "list_formats", "currencies",
     "number_systems", "number_symbols", "minimum_grouping_digits",
-    "rbnf", "units", "date_fields", "dates"
+    "rbnf", "units", "date_fields", "dates", "territories"
   ]
 
   @doc """
@@ -891,5 +891,39 @@ defmodule Cldr.Config do
       "trad",
       "unihan"
     ]
+  end
+
+
+  ### data for  ex_cldr_terrritories
+  @doc """
+  Returns territory info
+  """
+  def territory_info do
+    client_data_dir()
+    |> Path.join("territory_info.json")
+    |> File.read!
+    |> Poison.decode!
+    |> Cldr.Map.rename_key("_populationPercent", "population_percent")
+    |> Cldr.Map.rename_key("_gdp", "gdp")
+    |> Cldr.Map.rename_key("_literacyPercent", "literacy_percent")
+    |> Cldr.Map.rename_key("_population", "population")
+    |> Cldr.Map.rename_key("_officialStatus", "official_status")
+    |> Cldr.Map.rename_key("_writingPercent", "writing_percent")
+    |> Cldr.Map.rename_key("languagePopulation", "language_population")
+    |> Cldr.Map.atomize_keys
+  end
+
+  @doc """
+  Returns territory containment
+  """
+  def territory_containment do
+    client_data_dir()
+    |> Path.join("territory_containment.json")
+    |> File.read!
+    |> Poison.decode!
+    |> Cldr.Map.rename_key("_contains", "contains")
+    |> Cldr.Map.rename_key("_grouping", "grouping")
+    |> Cldr.Map.atomize_keys
+    |> Enum.map(fn({key, %{contains: values}}) -> {key, (for v <- values, do: String.to_atom(v))} end)
   end
 end

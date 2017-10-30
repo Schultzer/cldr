@@ -70,7 +70,11 @@ defmodule Cldr.Mixfile do
         "priv/cldr/day_periods.json",
         "priv/cldr/likely_subtags.json",
         "priv/cldr/aliases.json",
-        "priv/cldr/rfc5646.abnf"
+        "priv/cldr/rfc5646.abnf",
+
+        ### data for  ex_cldr_terrritories
+        "priv/cldr/territory_info.json",
+        "priv/cldr/territory_containment.json"
       ]
     ]
   end

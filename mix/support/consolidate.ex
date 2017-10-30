@@ -43,11 +43,42 @@ if Code.ensure_loaded?(Flow) do
       save_likely_subtags()
       save_locales()
 
+      ### data for  ex_cldr_terrritories
+      save_territory_info()
+      save_territory_containment()
+
       all_locales()
       |> Flow.from_enumerable(max_demand: @max_demand)
       |> Flow.map(&consolidate_locale/1)
       |> Enum.to_list
       :ok
+    end
+
+    ### data for  ex_cldr_terrritories
+    def save_territory_info do
+      path = Path.join(consolidated_output_dir(), "territory_info.json")
+
+      download_data_dir()
+      |> Path.join(["cldr-core", "/supplemental", "/territoryInfo.json"])
+      |> File.read!
+      |> Poison.decode!
+      |> get_in(["supplemental", "territoryInfo"])
+      |> save_file(path)
+
+      assert_package_file_configured!(path)
+    end
+
+    def save_territory_containment do
+      path = Path.join(consolidated_output_dir(), "territory_containment.json")
+
+      download_data_dir()
+      |> Path.join(["cldr-core", "/supplemental", "/territoryContainment.json"])
+      |> File.read!
+      |> Poison.decode!
+      |> get_in(["supplemental", "territoryContainment"])
+      |> save_file(path)
+
+      assert_package_file_configured!(path)
     end
 
     @doc """
@@ -95,6 +126,7 @@ if Code.ensure_loaded?(Flow) do
       |> Normalize.Units.normalize(locale)
       |> Normalize.DateFields.normalize(locale)
       |> Normalize.DateTime.normalize(locale)
+      |> Normalize.Territories.normalize(locale)
     end
 
     # Remove the top two levels of the map since they add nothing
